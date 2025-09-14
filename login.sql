@@ -1,0 +1,89 @@
+CREATE DATABASE IF NOT EXISTS whereclass
+  DEFAULT CHARACTER SET utf8mb4
+  COLLATE utf8mb4_0900_ai_ci;
+USE whereclass;
+
+-- 1) 사용자
+CREATE TABLE users (
+  id                 BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  email              VARCHAR(254) NOT NULL,
+  password_hash      VARCHAR(100) NOT NULL,   -- BCrypt 등
+  full_name          VARCHAR(100) NULL,
+  phone              VARCHAR(30)  NULL,
+  status             ENUM('ACTIVE','SUSPENDED') NOT NULL DEFAULT 'ACTIVE',
+  last_login_at      DATETIME(3) NULL,
+  failed_login_count INT UNSIGNED NOT NULL DEFAULT 0,
+  created_at         DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  updated_at         DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) 
+                         ON UPDATE CURRENT_TIMESTAMP(3),
+  deleted_at         DATETIME(3) NULL,
+  UNIQUE KEY uq_users_email (email),
+  KEY idx_users_status (status),
+  KEY idx_users_last_login (last_login_at)
+) ENGINE=InnoDB;
+
+-- 2) 역할(Role)
+CREATE TABLE roles (
+  id          BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name        VARCHAR(50) NOT NULL,     -- e.g., ROLE_USER, ROLE_ADMIN
+  description VARCHAR(255) NULL,
+  UNIQUE KEY uq_roles_name (name)
+) ENGINE=InnoDB;
+
+-- 3) 사용자-역할 매핑
+CREATE TABLE user_roles (
+  user_id BIGINT UNSIGNED NOT NULL,
+  role_id BIGINT UNSIGNED NOT NULL,
+  PRIMARY KEY (user_id, role_id),
+  CONSTRAINT fk_user_roles_user
+    FOREIGN KEY (user_id) REFERENCES users(id)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_user_roles_role
+    FOREIGN KEY (role_id) REFERENCES roles(id)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- 4) 인증 이벤트 로그 (로그인 성공/실패/로그아웃)
+CREATE TABLE auth_events (
+  id          BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id     BIGINT UNSIGNED NULL,    
+  event_type  ENUM('LOGIN_SUCCESS','LOGIN_FAILURE','LOGOUT') NOT NULL,
+  reason      VARCHAR(255) NULL,       -- 실패 사유 등
+  ip_address  VARCHAR(45) NULL,
+  user_agent  VARCHAR(255) NULL,
+  created_at  DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  KEY idx_auth_events_user (user_id, created_at DESC),
+  KEY idx_auth_events_created (created_at DESC),
+  CONSTRAINT fk_auth_events_user
+    FOREIGN KEY (user_id) REFERENCES users(id)
+    ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- 5) Spring Session (DB에 세션 저장 시 필요 / Redis 쓰면 불필요)
+CREATE TABLE SPRING_SESSION (
+  PRIMARY_ID CHAR(36) PRIMARY KEY,
+  SESSION_ID CHAR(36) NOT NULL,
+  CREATION_TIME BIGINT NOT NULL,
+  LAST_ACCESS_TIME BIGINT NOT NULL,
+  MAX_INACTIVE_INTERVAL INT NOT NULL,
+  EXPIRY_TIME BIGINT NOT NULL,
+  PRINCIPAL_NAME VARCHAR(100),
+  UNIQUE KEY SPRING_SESSION_IX1 (SESSION_ID),
+  KEY SPRING_SESSION_IX2 (EXPIRY_TIME),
+  KEY SPRING_SESSION_IX3 (PRINCIPAL_NAME)
+) ENGINE=InnoDB;
+
+CREATE TABLE SPRING_SESSION_ATTRIBUTES (
+  SESSION_PRIMARY_ID CHAR(36) NOT NULL,
+  ATTRIBUTE_NAME VARCHAR(200) NOT NULL,
+  ATTRIBUTE_BYTES BLOB NOT NULL,
+  PRIMARY KEY (SESSION_PRIMARY_ID, ATTRIBUTE_NAME),
+  CONSTRAINT SPRING_SESSION_FK
+    FOREIGN KEY (SESSION_PRIMARY_ID) REFERENCES SPRING_SESSION (PRIMARY_ID)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- 초기 역할
+INSERT IGNORE INTO roles (name, description) VALUES
+  ('ROLE_USER','기본 사용자'),
+  ('ROLE_ADMIN','관리자');
