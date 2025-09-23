@@ -1,8 +1,6 @@
 package com.whereclass.controller;
 
 import com.whereclass.model.Building;
-import com.whereclass.model.Floor;
-import com.whereclass.model.Room;
 import com.whereclass.service.BuildingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -43,18 +41,18 @@ public class BuildingController {
     }
 
     @GetMapping("/{buildingId}/floors/{floorId}")
-    public ResponseEntity<Floor> getFloorData(@PathVariable String buildingId,
+    public ResponseEntity<Object> getFloorData(@PathVariable String buildingId,
                                               @PathVariable String floorId) {
-        Optional<Floor> floor = buildingService.getFloorData(buildingId, floorId);
+        Optional<Object> floor = buildingService.getFloorData(buildingId, floorId);
         return floor.map(ResponseEntity::ok)
                    .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/{buildingId}/floors/{floorId}/rooms/{roomId}")
-    public ResponseEntity<Room> getRoomData(@PathVariable String buildingId,
+    public ResponseEntity<Object> getRoomData(@PathVariable String buildingId,
                                            @PathVariable String floorId,
                                            @PathVariable String roomId) {
-        Optional<Room> room = buildingService.getRoomData(buildingId, floorId, roomId);
+        Optional<Object> room = buildingService.getRoomData(buildingId, floorId, roomId);
         return room.map(ResponseEntity::ok)
                   .orElse(ResponseEntity.notFound().build());
     }

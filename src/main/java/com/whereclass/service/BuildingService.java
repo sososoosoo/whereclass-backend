@@ -1,13 +1,12 @@
 package com.whereclass.service;
 
 import com.whereclass.model.Building;
-import com.whereclass.model.Floor;
-import com.whereclass.model.Room;
 import com.whereclass.repository.BuildingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -33,20 +32,25 @@ public class BuildingService {
         return Set.of();
     }
 
-    public Optional<Floor> getFloorData(String buildingId, String floorId) {
+    public Optional<Object> getFloorData(String buildingId, String floorId) {
         Optional<Building> building = buildingRepository.findById(buildingId);
         if (building.isPresent()) {
-            Floor floor = building.get().getFloors().get(floorId);
+            Object floor = building.get().getFloors().get(floorId);
             return Optional.ofNullable(floor);
         }
         return Optional.empty();
     }
 
-    public Optional<Room> getRoomData(String buildingId, String floorId, String roomId) {
-        Optional<Floor> floor = getFloorData(buildingId, floorId);
-        if (floor.isPresent()) {
-            Room room = floor.get().getClickableAreas().get(roomId);
-            return Optional.ofNullable(room);
+    public Optional<Object> getRoomData(String buildingId, String floorId, String roomId) {
+        Optional<Object> floor = getFloorData(buildingId, floorId);
+        if (floor.isPresent() && floor.get() instanceof Map) {
+            Map<String, Object> floorMap = (Map<String, Object>) floor.get();
+            Object clickableAreas = floorMap.get("clickable_areas");
+            if (clickableAreas instanceof Map) {
+                Map<String, Object> clickableAreasMap = (Map<String, Object>) clickableAreas;
+                Object room = clickableAreasMap.get(roomId);
+                return Optional.ofNullable(room);
+            }
         }
         return Optional.empty();
     }

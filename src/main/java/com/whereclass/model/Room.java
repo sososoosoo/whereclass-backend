@@ -1,13 +1,19 @@
 package com.whereclass.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 public class Room {
     private String id;
     private String type;
+
+    @JsonProperty("display_name")
     private String displayName;
+
     private List<Coordinate> polygon;
     private Coordinate center;
+
+    @JsonProperty("svg_path_info")
     private SvgPathInfo svgPathInfo;
 
     public Room() {}

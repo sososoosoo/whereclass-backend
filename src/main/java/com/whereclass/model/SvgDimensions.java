@@ -1,8 +1,12 @@
 package com.whereclass.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class SvgDimensions {
     private int width;
     private int height;
+
+    @JsonProperty("viewBox")
     private String viewBox;
 
     public SvgDimensions() {}

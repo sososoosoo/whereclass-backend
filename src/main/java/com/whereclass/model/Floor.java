@@ -1,17 +1,25 @@
 package com.whereclass.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Map;
 
 public class Floor {
+    @JsonProperty("floor_name")
     private String floorName;
+
+    @JsonProperty("svg_file")
     private String svgFile;
-    private SvgDimensions svgDimensions;
-    private Map<String, Room> clickableAreas;
+
+    @JsonProperty("svg_dimensions")
+    private Object svgDimensions;  // Use Object to handle any structure
+
+    @JsonProperty("clickable_areas")
+    private Object clickableAreas;  // Use Object to handle any structure
 
     public Floor() {}
 
-    public Floor(String floorName, String svgFile, SvgDimensions svgDimensions,
-                 Map<String, Room> clickableAreas) {
+    public Floor(String floorName, String svgFile, Object svgDimensions,
+                 Object clickableAreas) {
         this.floorName = floorName;
         this.svgFile = svgFile;
         this.svgDimensions = svgDimensions;
@@ -24,9 +32,9 @@ public class Floor {
     public String getSvgFile() { return svgFile; }
     public void setSvgFile(String svgFile) { this.svgFile = svgFile; }
 
-    public SvgDimensions getSvgDimensions() { return svgDimensions; }
-    public void setSvgDimensions(SvgDimensions svgDimensions) { this.svgDimensions = svgDimensions; }
+    public Object getSvgDimensions() { return svgDimensions; }
+    public void setSvgDimensions(Object svgDimensions) { this.svgDimensions = svgDimensions; }
 
-    public Map<String, Room> getClickableAreas() { return clickableAreas; }
-    public void setClickableAreas(Map<String, Room> clickableAreas) { this.clickableAreas = clickableAreas; }
+    public Object getClickableAreas() { return clickableAreas; }
+    public void setClickableAreas(Object clickableAreas) { this.clickableAreas = clickableAreas; }
 }

@@ -9,11 +9,11 @@ public class Building {
     @Id
     private String id;
     private String buildingName;
-    private Map<String, Floor> floors;
+    private Map<String, Object> floors;
 
     public Building() {}
 
-    public Building(String id, String buildingName, Map<String, Floor> floors) {
+    public Building(String id, String buildingName, Map<String, Object> floors) {
         this.id = id;
         this.buildingName = buildingName;
         this.floors = floors;
@@ -25,6 +25,6 @@ public class Building {
     public String getBuildingName() { return buildingName; }
     public void setBuildingName(String buildingName) { this.buildingName = buildingName; }
 
-    public Map<String, Floor> getFloors() { return floors; }
-    public void setFloors(Map<String, Floor> floors) { this.floors = floors; }
+    public Map<String, Object> getFloors() { return floors; }
+    public void setFloors(Map<String, Object> floors) { this.floors = floors; }
 }
